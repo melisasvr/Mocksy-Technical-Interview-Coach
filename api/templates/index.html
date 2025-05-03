@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocksy - Technical Interview Coach</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #4285f4;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            background-color: white;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #f1f1f1;
+            align-self: flex-start;
+        }
+        .input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        .topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .topic-btn {
+            background-color: #f1f1f1;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .topic-btn:hover {
+            background-color: #e1e1e1;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            border-left: 4px solid #4285f4;
+        }
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            color: #333; /* Ensure code text is visible */
+        }
+        .bot-message ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .bot-message li {
+            margin-bottom: 5px;
+        }
+        .bot-message strong {
+            font-weight: 700;
+        }
+        .bot-message p {
+            margin: 10px 0;
+        }
+        .bot-message h1, .bot-message h2, .bot-message h3 {
+            margin: 15px 0 10px;
+            font-weight: 600;
+        }
+        .bot-message h1 {
+            font-size: 1.5em;
+        }
+        .bot-message h2 {
+            font-size: 1.3em;
+        }
+        .bot-message h3 {
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mocksy</h1>
+            <p>Your AI-Powered Technical Interview Coach</p>
+        </header>
+        <div class="topics">
+            <div class="topic-btn" onclick="sendMessage('Help me practice algorithms')">Algorithms</div>
+            <div class="topic-btn" onclick="sendMessage('I want to practice data structures')">Data Structures</div>
+            <div class="topic-btn" onclick="sendMessage('Give me a system design question')">System Design</div>
+            <div class="topic-btn" onclick="sendMessage('Help me prepare for Google interview')">Google Interview</div>
+            <div class="topic-btn" onclick="sendMessage('Ask me about reverse string')">Reverse String</div>
+            <div class="topic-btn" onclick="sendMessage('Two Sum Problem')">Two Sum</div>
+        </div>
+        <div class="chat-container">
+            <div class="messages" id="message-container">
+                <div class="message bot-message">
+                    Welcome to Mocksy! I'm your Technical Interview Coach. What would you like to practice today? Choose a topic above or ask me anything about technical interviews.
+                </div>
+            </div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function addMessage(text, isUser = false) {
+            const messagesContainer = document.getElementById('message-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            if (isUser) {
+                messageDiv.textContent = text;
+            } else {
+                let formattedText = text
+                    .replace(/&/g, '&')
+                    .replace(/</g, '<')
+                    .replace(/>/g, '>');
+                
+                // Improved code block handling
+                formattedText = formattedText.replace(/```([\w-]+)?\s*\n([\s\S]*?)\n\s*```/g, function(match, language, code) {
+                    // Trim whitespace and ensure code is preserved
+                    const trimmedCode = code.trim();
+                    return `<pre><code>${trimmedCode}</code></pre>`;
+                });
+                
+                formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                formattedText = formattedText.replace(/^- (.*?)(?=\n- |\n\n|$)/gm, '<li>$1</li>');
+                formattedText = formattedText.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
+                formattedText = formattedText.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+                formattedText = formattedText.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+                formattedText = formattedText.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+                
+                formattedText = formattedText.split('\n\n').map(paragraph => {
+                    if (paragraph.startsWith('<') && paragraph.endsWith('>')) {
+                        return paragraph;
+                    }
+                    return `<p>${paragraph}</p>`;
+                }).join('');
+                
+                messageDiv.innerHTML = formattedText;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        async function sendMessage(text = null) {
+            const userInput = document.getElementById('user-input');
+            const message = text || userInput.value.trim();
+            if (!message) return;
+            addMessage(message, true);
+            userInput.value = '';
+            try {
+                const response = await fetch('/interview', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: message }),
+                });
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                const data = await response.json();
+                addMessage(data.answer);
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Sorry, I had trouble connecting to the server. Please try again.');
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "technical-interview-coach",
+  "version": "1.0.0",
+  "description": "AI-powered Technical Interview Coach for personalized interview prep",
+  "keywords": ["interview", "technical", "AI", "career"],
+  "author": "Melisa",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@vibing-ai/sdk": "^1.0.0",
+    "axios": "^1.9.0"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
